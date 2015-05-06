@@ -1,0 +1,33 @@
+#playground {
+    width: 700px;
+    height: 250px;
+    background: #000;
+}
+/*#startButton a {text-align: center;}*/
+
+#welcomeScreen {
+    width: 700px;
+    height: 250px;
+    position: absolute;
+    z-index: 100;
+    color: white;
+    cursor: pointer;
+    text-align: center;
+
+}
+
+/*#startButton {
+    /*top: 175px;*/
+    /*text-align: center;*/
+    /*margin: 200px;
+}*/
+
+
+/*
+#loadingBar {
+    position: relative;
+    left: 100px;
+    height: 15px;
+    width: 0px;
+    background: pink;
+}*/
