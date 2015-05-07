@@ -236,10 +236,74 @@ $(function() {
                     }
                 }
 
+                // Make the enemy fire
+                if (this.enemy instanceof Brainy) {
+                    if (Math.random() , 0.05) {
+                        var enemyposx = $(this).x();
+                        var enemyposy = $(this).y();
+                        missileCounter = (missileCounter + 1) % 100000;
+                        var name = "enemiesMissile_" + missileCounter;
+                        $("#enemiesMissileLayer").addSprite(name, { animation: missile["enemies"], posx: enemyposx, posy: enemyposy + 20, width: 30, height: 15 });
+                        $("#" + name).addClass("enemiesMissiles");
+                    }
+                }
+            });
+
+            $(".playerMissiles").each(function() {
+                var posx = $(this).x();
+                if (posx > PLAYGROUND_WIDTH) {
+                    $(this).remove();
+                    return;
+                }
+                $(this).x(MISSILE_SPEED, true);
+
+                var collided = $(this).collision(".enemy,." + $.gQ.groupCssClass);
+                if (collided.length > 0) {
+                    collided.each(function() {
+                        if ($(this)[0].enemy.damage()) {
+                            if (this.enemy instanceof Bossy) {
+                                $(this).setAnimation(enemies[2]["explode"], function(node) { $(node).remove(); });
+                                $(this).css("width", 150);
+                            } else if (this.enemy instanceof Brainy) {
+                                $(this).setAnimation(enemies[1]["explode"], function(node) { $(node).remove(); });
+                                $(this).css("width", 150);
+                            } else {
+                                $(this).setAnimation(enemies[0]["explode"], function(node) { $(node).remove(); });
+                                $(this).css("width", 150);
+                            }
+                            $(this).removeClass("enemy");
+                        }
+                    });
+                    $(this).setAnimation(missile["playerexplode"], function(node) { $(node).remove(); });
+                    $(this).css("width", 38);
+                    $(this).css("height", 23);
+                    $(this).y(-7, true);
+                    $(this).removeClass("playerMissiles");
+
+                }
 
 
 
             });
+
+            $(".enemiesMissiles").each(function() {
+                var posx = $(this).x();
+                if (posx < 0) {
+                    $(this).remove();
+                    return;
+                }
+                var collided = $(this).collision("#playerBody,." + $.gQ.groupCssClass);
+                if (collided.length > 0) {
+                    collided.each(function() {
+                        if ($("#player")[0].player.damage()) {
+                            explodePlayer($("#player"));
+                        }
+                    })
+                    $(this).setAnimation(missile["enemiesexplode"], function(node) { $(node).remove(); });
+                    $(this).removeClass("enemiesMissiles");
+                }
+            });
+
         }
     }, REFRESH_RATE);
 
@@ -323,51 +387,50 @@ $(function() {
 
   // Animation Keymap
   $(document).keydown(function(e) {
-    // if(!gameOver && !playerHit) {
-    switch(e.keyCode) {
-      case 75:
-        var playerposx = ("#player").x();
-        var playerposy = ("#player").y();
-        missileCounter = (missileCounter + 1) % 100000;
-        var name = "playerMissile_" + missileCounter;
-
-        $("#playerMissileLayer").addSprite(name,{ animation: missile["player"], posx: playerposx + 90, posy: playerposy + 14, width: 36, height: 10 });
-        $("#" + name).addClass("playerMissiles");
-        break;
-      case 65: //this is lift! (a)
-        $("#playerBooster").setAnimation();
-        break;
-      case 87: //this is up!(w)
-        $("#playerBoostUp").setAnimation(playerAnimation["up"]);
-        break;
-      case 68: //this is right!(d)
-        $("#playerBooster").setAnimation(playerAnimation["booster"]);
-        break;
-      case 83: //this is down!(s)
-        $("#playerBoostDown").setAnimation(playerAnimation["down"]);
-        break;
+    if(!gameOver && !playerHit) {
+        switch(e.keyCode) {
+          case 75:
+            var playerposx = $("#player").x();
+            var playerposy = $("#player").y();
+            missileCounter = (missileCounter + 1) % 100000;
+            var name = "playerMissile_" + missileCounter;
+            $("#playerMissileLayer").addSprite(name,{ animation: missile["player"], posx: playerposx + 90, posy: playerposy + 14, width: 36, height: 10 });
+            $("#" + name).addClass("playerMissiles");
+            break;
+          case 65: //this is lift! (a)
+            $("#playerBooster").setAnimation();
+            break;
+          case 87: //this is up!(w)
+            $("#playerBoostUp").setAnimation(playerAnimation["up"]);
+            break;
+          case 68: //this is right!(d)
+            $("#playerBooster").setAnimation(playerAnimation["booster"]);
+            break;
+          case 83: //this is down!(s)
+            $("#playerBoostDown").setAnimation(playerAnimation["down"]);
+            break;
+        }
     }
-    // }
   });
 
   // Animation Keymap (opposite)
   $(document).keyup(function(e) {
-    // if(!gameOver && !playerHit) {
-    switch(e.keyCode) {
-      case 65: //this is left!(a)
-        $("#playerBooster").setAnimation(playerAnimation["boost"]);
-        break;
-      case 87: //this is up!(w)
-        $("#playerBoostUp").setAnimation();
-        break;
-      case 68: //this is right!(d)
-        $("#playerBooster").setAnimation(playerAnimation["boost"]);
-        break;
-      case 83: //this is down!(s)
-        $("#playerBoostDown").setAnimation();
-        break;
+    if(!gameOver && !playerHit) {
+        switch(e.keyCode) {
+          case 65: //this is left!(a)
+            $("#playerBooster").setAnimation(playerAnimation["boost"]);
+            break;
+          case 87: //this is up!(w)
+            $("#playerBoostUp").setAnimation();
+            break;
+          case 68: //this is right!(d)
+            $("#playerBooster").setAnimation(playerAnimation["boost"]);
+            break;
+          case 83: //this is down!(s)
+            $("#playerBoostDown").setAnimation();
+            break;
+        }
     }
-    // }
   });
 
   // 1st Enemy Type
