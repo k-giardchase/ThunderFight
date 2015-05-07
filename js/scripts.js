@@ -17,8 +17,8 @@ var enemies         = new Array(3);
 // PLAYER OBJECT
 function Player(node) {
   this.node = node;
-  //this.animations = animations;
 
+  //this.animations = animations;
   this.grace = false;
   this.replay = 3;
   this.shield = 3;
@@ -34,16 +34,108 @@ function Player(node) {
     }
     return false;
   }
+
+  // respawns the ship after death and returns true if the game is over
+  this.respawn = function() {
+      this.replay--;
+      if (this.replay == 0) {
+          return true;
+      }
+
+      this.grace = true;
+      this.shield = 3;
+
+      this.respawnTime = (new Date()).getTime();
+      $(this.node).fadeTo(0, 0.5);
+      return false;
+  };
+
+  this.update = function() {
+      if ((this.respawnTime > 0) && (((new Date()).getTime()-this.respawnTime) > 3000)) {
+          this.grace = false;
+          $(this.node).fadeTo(0, 1);
+          this.respawnTime = -1;
+      }
+  }
+
+  return true;
+};
+
+function Enemy(node) {
+    this.shield = 2;
+    this.speedx = -5;
+    this.speedy = 0;
+    this.node = $(node);
+
+    //deals with damage endured by an enemy
+    this.damage = function() {
+        this.shield--;
+        if(this.shield == 0) {
+            return true;
+        }
+        return false;
+    };
+
+    //updates the position of the enemy
+    this.update = function(playerNode) {
+        this.updateX(playerNode);
+        this.updateY(playerNode);
+    };
+
+    this.updateX = function(playerNode) {
+        this.node.x(this.speedx, true);
+    };
+
+    this.updateY = function(playerNode) {
+        var newpos = parseInt(this.node.css("top")) + this.speedy;
+        this.node.y(this.speedy, true);
+    };
 }
 
 
+function Minion(node) {
+        this.node = $(node);
+    }
+    Minion,prototype = new Enemy();
+
+    Minion.prototype.updateY = function(playerNode) {
+        var pos = parseInt(this.node.css('top'));
+        if(pos > (PLAYGROUND_HEIGHT - 50)) {
+            this.node.css('top', ''+(pos - 2)+'px');
+        }
+    }
+
+function Brainy(node) {
+        this.node = $(node);
+        this.shield = 5;
+        this.speedy = 1;
+        this.alignmentOffset = 5;
+    }
+    Brainy.prototype = new Enemy();
+    Brainy.prototype.updateY = function(playerNode) {
+        if((this.node[0].gameQuery.posy+this.alignmentOffset) > $(playerNode)[0].gameQuery.posy) {
+            var newpos = parseInt(this.node.css('top'))-this.speedy;
+            this.node.css('top', ''+newpos+'px');
+        } else if((this.node[0].gameQuery.posy+this.alignmentOffset) < $(playNode)[0].gameQuery.posy) {
+            var newpos = parseInt(this.node.css('top'))+this.speedy;
+            this.node.css('top', ''+newpos+'px');
+        }
+}
 
 
-
-// UNDER PLAYER OBJECT... MORE GOES HERE....
-// http://gamequeryjs.com/documentation/first-tutorial/first-tutorial-step-2/
-
-
+function Bossy(node) {
+    this.node = $(node);
+    this.shield = 20;
+    this.speedx = -1;
+    this.alignmenetOffset = 35;
+}
+Bossy.prototype = new Brainy();
+Bossy.prototype.updateX = function() {
+    var pos = parseInt(this.node.css('left'));
+    if(pos > (PLAYGROUND_WIDTH -200)) {
+        this.node.css('left', ''+(pos+this.speedx)+'px');
+    }
+}
 
 
 
@@ -122,7 +214,7 @@ $(function() {
   // Animation Keymap
   $(document).keydown(function(e) {
     // if(!gameOver && !playerHit) {
-    switch(e.keyCode){
+    switch(e.keyCode) {
       case 75:
         var playerposx = ("#player").x();
         var playerposy = ("#player").y();
@@ -151,7 +243,7 @@ $(function() {
   // Animation Keymap (opposite)
   $(document).keyup(function(e) {
     // if(!gameOver && !playerHit) {
-    switch(e.keyCode){
+    switch(e.keyCode) {
       case 65: //this is left!(a)
         $("#playerBooster").setAnimation(playerAnimation["boost"]);
         break;
