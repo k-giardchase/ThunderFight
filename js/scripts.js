@@ -226,17 +226,25 @@ $(function() {
 
     $("#overlay").append("<div id='shieldHUD' style='color: white; width: 100px; position: absolute; font-family: verdana, sans-serif;'></div>");
 
-    $.loadCallback(function(percent) {
-        $("#loadingBar").width(400 * percent);
-    });
+    // $.loadCallback(function(percent) {
+    //     $("#loadingBar").width(400 * percent);
+    // });
 
-  // Initialize the Start Button
-  $("#startbutton").click(function() {
-    $.playground().startGame(function() {
-      $("#welcomeScreen").fadeTo(1000, 0, function() { $(this).remove(); });
-    });
+
+  $(document).one('keypress', function(e) {
+      if (e.keyCode == 13) {
+          $.playground().startGame(function() {
+            $("#welcomeScreen").fadeTo(1000, 0, function() { $(this).remove(); });
+          });
+      }
   });
 
+
+  // $("#startbutton").click(function() {
+  //   $.playground().startGame(function() {
+  //     $("#welcomeScreen").fadeTo(1000, 0, function() { $(this).remove(); });
+  //   });
+  // });
 
 
     $.playground().registerCallback(function() {
@@ -277,8 +285,12 @@ $(function() {
                 if (posy > PLAYGROUND_HEIGHT) {
                     if ($('#player')[0].player.respawn()) {
                         gameOver = true;
-                        $('#playground').append('<div style="position: absolute; top: 50px; width: 700px; color: white; font-family: verdana, sans-serif;"><center><h1>Game Over</h1><br><a style="cursor: pointer;" id="restartbutton">Click here to restart the game!</a></center></div>');
-                        $("#restartbutton").click(restartgame);
+                        $('#playground').append('<div style="position: absolute; top: 50px; width: 700px; color: white; font-family: verdana, sans-serif;"><center><h1>Game Over</h1><br><a style="cursor: pointer;" id="restartbutton">Press ENTER to restart the game!</a></center></div>');
+                        $(document).one('keypress', function(e) {
+                            if (e.keyCode == 13) {
+                                restartgame();
+                            }
+                        });
                         $("#actors, #playerMissileLayer, #enemiesMissileLayer").fadeTo(1000, 0);
                         $("#background").fadeTo(5000, 0);
                     } else {
