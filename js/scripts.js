@@ -2,16 +2,37 @@
 var PLAYGROUND_WIDTH   = 700;
 var PLAYGROUND_HEIGHT  = 250;
 var REFRESH_RATE       = 30;
+var GRACE              = 2000;
+var MISSILE_SPEED      = 10;
 
-//BG CONSTANTS
+// BG CONSTANTS
 var smallStarSpeed     = 1; //pixels per frame
 var mediumStarSpeed    = 3; //pixels per frame
 var bigStarSpeed       = 5; //pixels per frame
 
-//GAME CONSTANTS
+// GAME CONSTANTS
 var playerAnimation = new Array();
 var missile         = new Array();
 var enemies         = new Array(3);
+
+// GAME STATE CONSTANTS
+var bossMode = false;
+var bossName = null;
+var playerHit = false;
+var timeOfRespawn = 0;
+var gameOver = false;
+var missileCounter = 0;
+
+
+function restartgame() {
+    window.location.reload();
+};
+
+function explodePlayer(playerNode) {
+    playerNode.children().hide();
+    playerNode.addSprite('explosion', {animation: playerAnimation['explode'], width: 100, height: 26})
+    playerHit = true;
+};
 
 
 // PLAYER OBJECT
@@ -96,12 +117,12 @@ function Enemy(node) {
 function Minion(node) {
         this.node = $(node);
     }
-    Minion,prototype = new Enemy();
+    Minion.prototype = new Enemy();
 
     Minion.prototype.updateY = function(playerNode) {
-        var pos = parseInt(this.node.css('top'));
-        if(pos > (PLAYGROUND_HEIGHT - 50)) {
-            this.node.css('top', ''+(pos - 2)+'px');
+        // var pos = parseInt(this.node.css('top'));
+        if(this.node.y() > (PLAYGROUND_HEIGHT - 100)) {
+            this.node.y(-2, true);
         }
     }
 
@@ -113,12 +134,10 @@ function Brainy(node) {
     }
     Brainy.prototype = new Enemy();
     Brainy.prototype.updateY = function(playerNode) {
-        if((this.node[0].gameQuery.posy+this.alignmentOffset) > $(playerNode)[0].gameQuery.posy) {
-            var newpos = parseInt(this.node.css('top'))-this.speedy;
-            this.node.css('top', ''+newpos+'px');
-        } else if((this.node[0].gameQuery.posy+this.alignmentOffset) < $(playNode)[0].gameQuery.posy) {
-            var newpos = parseInt(this.node.css('top'))+this.speedy;
-            this.node.css('top', ''+newpos+'px');
+        if((this.node.y() + this.alignmentOffset) > $(playerNode).y()) {
+            this.node.y(-this.speedy, true);
+        } else if((this.node.y() + this.alignmentOffset) < $(playerNode).y()) {
+            this.node.y(this.speedy, true);
         }
 }
 
@@ -131,14 +150,10 @@ function Bossy(node) {
 }
 Bossy.prototype = new Brainy();
 Bossy.prototype.updateX = function() {
-    var pos = parseInt(this.node.css('left'));
-    if(pos > (PLAYGROUND_WIDTH -200)) {
-        this.node.css('left', ''+(pos+this.speedx)+'px');
+    if(this.node.x() > (PLAYGROUND_WIDTH -200)) {
+        this.node.x(this.speedx, true);
     }
 }
-
-
-
 
 
 // jQuery
@@ -164,6 +179,21 @@ $(function() {
       .addSprite("background4", { animation: background4, width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT, posx: PLAYGROUND_WIDTH })
       .addSprite("background5", { animation: background5, width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT })
       .addSprite("background6", { animation: background6, width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT, posx: PLAYGROUND_WIDTH })
+    .end()
+    .addGroup("actors", {width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT })
+      .addGroup("player", { posx: PLAYGROUND_WIDTH/2, posy: PLAYGROUND_HEIGHT/2, width: 100, height: 26 })
+        .addSprite("playerBoostUp", { posx: 37, posy: 15, width: 14, height: 18 })
+        .addSprite("playerBody", { animation: playerAnimation["idle"], posx: 0, posy: 0, width: 100, height: 26})
+        .addSprite("playerBooster", { animation: playerAnimation["boost"], posx: -32, posy: 5, width: 36, height: 14})
+        .addSprite("playerBoostDown", { posx: 37, posy: -7, width: 14, height: 18 })
+        .end()
+    .end()
+    // .addGroup("playerMissileLayer",{width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT}).end()
+    // .addGroup("enemiesMissileLayer",{width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT}).end()
+    // .addGroup("overlay",{width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT});
+
+    $("#player")[0].player = new Player($("#player"));
+
 
   // Initialize the Start Button
   $("#startbutton").click(function() {
@@ -171,6 +201,86 @@ $(function() {
       $("#welcomeScreen").remove();
     });
   });
+
+
+
+    $.playground().registerCallback(function() {
+        if(!gameOver) {
+            //Update the movement of the enemies
+            $(".enemy").each(function() {
+                this.enemy.update($("#player"));
+                var posx = $(this).x();
+                if((posx + 100) < 0) {
+                    $(this).remove();
+                    return;
+                }
+
+                //Test for collisions
+                var collided = $(this).collision("#playerBody,."+$.gQ.groupCssClass);
+                if(collided.length > 0) {
+                    if(this.enemy instanceof Bossy) {
+                        $(this).setAnimation(enemies[2]["explode"], function(node){$(node).remove();});
+                        $(this).css("width", 150);
+                    } else if(this.enemy instanceof Brainy) {
+                        $(this).setAnimation(enemies[1]["explode"], function(node){$(node).remove();});
+                        $(this).css("width", 150);
+                    } else {
+                        $(this).setAnimation(enemies[0]["explode"], function(node){$(node).remove();});
+                        $(this).css("width", 200);
+                    }
+                    $(this).removeClass("enemy");
+
+                    //The player has been hit!
+                    if ($("#player")[0].player.damage()) {
+                        explodePlayer($("#player"));
+                    }
+                }
+
+
+
+
+            });
+        }
+    }, REFRESH_RATE);
+
+
+  // This function manages the creation of the enemies
+  $.playground().registerCallback(function() {
+      if (!bossMode && !gameOver) {
+
+          if (Math.random() < 0.4) {
+              var name = "enemy1_" + Math.ceil(Math.random() * 1000);
+              $("#actors").addSprite(name, { animation: enemies[0]["idle"],
+                posx: PLAYGROUND_WIDTH, posy: Math.random() * PLAYGROUND_HEIGHT,
+                width: 150, height: 52 });
+              $("#" + name).addClass("enemy");
+              $("#" + name)[0].enemy = new Minion($("#" + name));
+          }
+          else if (Math.random() > 0.5) {
+              var name = "enemy1_" + Math.ceil(Math.random() * 1000);
+              $("#actors").addSprite(name, { animation: enemies[1]["idle"],
+                posx: PLAYGROUND_WIDTH, posy: Math.random() * PLAYGROUND_HEIGHT,
+                width: 100, height: 42 });
+              $("#" + name).addClass("enemy");
+              $("#" + name)[0].enemy = new Brainy($("#" + name));
+          }
+          else if (Math.random() > 0.8) {
+              bossMode = true;
+              bossName = "enemy1_" + Math.ceil(Math.random() * 1000);
+              $("#actors").addSprite(bossName, { animation: enemies[2]["idle"],
+                posx: PLAYGROUND_WIDTH, posy: Math.random() * PLAYGROUND_HEIGHT,
+                width: 100, height: 100 });
+              $("#" + bossName).addClass("enemy");
+              $("#" + bossName)[0].enemy = new Bossy($("#" + bossName));
+          }
+
+      }
+      else {
+          if ($("#" + bossName).length == 0) {
+              bossMode = false;
+          }
+      }
+  }, 1000);
 
   //This is for the background animation
   $.playground().registerCallback(function() {
@@ -203,7 +313,7 @@ $(function() {
   playerAnimation["boost"]   = new $.gQ.Animation({ imageURL: "img/booster1.png", numberOfFrame: 6, delta: 14, rate: 60, type: $.gameQuery.ANIMATION_VERTICAL});
   playerAnimation["booster"] = new $.gQ.Animation({ imageURL: "img/booster2.png"});
 
-  //Initialize the Background
+  // Initialize the Background
   $.playground().addGroup("actors", {width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT })
     .addGroup("player", { posx: PLAYGROUND_WIDTH/2, posy: PLAYGROUND_HEIGHT/2, width: 100, height: 26 })
       .addSprite("playerBoostUp", { posx: 37, posy: 15, width: 14, height: 18 })
@@ -280,5 +390,13 @@ $(function() {
   missile["enemies"] = new $.gameQuery.Animation({ imageURL: "img/enemy_missile.png", numberOfFrame: 6, delta: 15, rate: 90, type: $.gameQuery.ANIMATION_VERTICAL });
   missile["playerexplode"] = new $.gameQuery.Animation({imageURL: "img/player_missile_explode.png", numberOfFrame: 8, delta: 23, rate: 90, type: $.gameQuery.ANIMATION_VERTICAL | $.gameQuery.ANIMATION_CALLBACK});
   missile["enemiesexplode"] = new $.gameQuery.Animation({imageURL: "img/player_missile_explode.png", numberOfFrame: 6, delta: 15, rate: 90, type: $.gameQuery.ANIMATION_VERTICAL | $.gameQuery.ANIMATION_CALLBACK});
+
+
+
+
+
+
+
+
 
 });  // CLOSING jQuery
