@@ -225,6 +225,7 @@ $(function() {
     $("#player")[0].player = new Player($("#player"));
 
     $("#overlay").append("<div id='shieldHUD' style='color: white; width: 100px; position: absolute; font-family: verdana, sans-serif;'></div>");
+    $("#overlay").append("<div id='lifeHUD' style='color: white; top: 20px; width: 100px; position: absolute; font-family: verdana, sans-serif;'></div>");
 
     // $.loadCallback(function(percent) {
     //     $("#loadingBar").width(400 * percent);

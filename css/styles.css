@@ -1,7 +1,16 @@
+.center {
+    margin: 200px auto;
+    position: relative;
+    width: 700px;
+    height: 250px;
+}
+
 #playground {
   width: 700px;
   height: 250px;
   background: #000;
+  /*margin-top : 300px;
+  margin-left: 40%;*/
 }
 
 #welcomeScreen {
@@ -35,4 +44,17 @@
   top: 175px;
   text-align: center;
   margin: 200px;
+}
+
+
+
+body {
+    background: url('../img/space.jpg') repeat;
+    background-size: 125%;
+    top: 0;
+    z-index: -1;
+}
+
+video {
+    display : none;
 }
