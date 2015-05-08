@@ -145,7 +145,7 @@ function Brainy(node) {
 
 function Bossy(node) {
     this.node = $(node);
-    this.shield = 20;
+    this.shield = 50;
     this.speedx = -1;
     this.alignmenetOffset = 35;
 }
@@ -255,25 +255,25 @@ $(function() {
             //Update the movement of the ship:
             if(!playerHit) {
                 $('#player')[0].player.update();
-                if(jQuery.gQ.keyTracker[65]) { // this is left! (a)
+                if(jQuery.gQ.keyTracker[65] || jQuery.gQ.keyTracker[37]) { // this is left! (a)
                     var nextpos = $('#player').x() - 5;
                     if (nextpos > 0) {
                         $('#player').x(nextpos);
                     }
                 }
-                if (jQuery.gQ.keyTracker[68]) { // this is right! (d)
+                if (jQuery.gQ.keyTracker[68] || jQuery.gQ.keyTracker[39]) { // this is right! (d)
                     var nextpos = $('#player').x() + 5;
                     if(nextpos < PLAYGROUND_WIDTH - 100) {
                         $('#player').x(nextpos);
                     }
                 }
-                if (jQuery.gQ.keyTracker[87]) { // this is up! (w)
+                if (jQuery.gQ.keyTracker[87] || jQuery.gQ.keyTracker[38]) { // this is up! (w)
                     var nextpos = $('#player').y() - 3;
                     if(nextpos > 0) {
                         $('#player').y(nextpos);
                     }
                 }
-                if (jQuery.gQ.keyTracker[83]) { // this is down! (s)
+                if (jQuery.gQ.keyTracker[83] || jQuery.gQ.keyTracker[40]) { // this is down! (s)
                     var nextpos = $('#player').y() + 3;
                     if (nextpos < PLAYGROUND_HEIGHT - 30) {
                         $('#player').y(nextpos);
@@ -481,18 +481,31 @@ $(function() {
             $("#playerMissileLayer").addSprite(name, { animation: missile["player"], posx: playerposx + 90, posy: playerposy + 14, width: 36, height: 10 });
             $("#" + name).addClass("playerMissiles");
             break;
-          case 65: //this is lift! (a)
+          case 65: //this is left! (a)
+            $("#playerBooster").setAnimation();
+            break;
+          case 37:
             $("#playerBooster").setAnimation();
             break;
           case 87: //this is up!(w)
             $("#playerBoostUp").setAnimation(playerAnimation["up"]);
             break;
+          case 38:
+            $("#playerBoostUp").setAnimation(playerAnimation["up"]);
+            break;
           case 68: //this is right!(d)
+            $("#playerBooster").setAnimation(playerAnimation["booster"]);
+            break;
+          case 39:
             $("#playerBooster").setAnimation(playerAnimation["booster"]);
             break;
           case 83: //this is down!(s)
             $("#playerBoostDown").setAnimation(playerAnimation["down"]);
             break;
+          case 40:
+            $("#playerBoostDown").setAnimation(playerAnimation["down"]);
+            break;
+
         }
     }
   });
@@ -504,13 +517,25 @@ $(function() {
           case 65: //this is left!(a)
             $("#playerBooster").setAnimation(playerAnimation["boost"]);
             break;
+          case 37:
+            $("#playerBooster").setAnimation(playerAnimation["boost"]);
+            break;
           case 87: //this is up!(w)
+            $("#playerBoostUp").setAnimation();
+            break;
+          case 38:
             $("#playerBoostUp").setAnimation();
             break;
           case 68: //this is right!(d)
             $("#playerBooster").setAnimation(playerAnimation["boost"]);
             break;
+          case 39:
+            $("#playerBooster").setAnimation(playerAnimation["boost"]);
+            break;
           case 83: //this is down!(s)
+            $("#playerBoostDown").setAnimation();
+            break;
+          case 40:
             $("#playerBoostDown").setAnimation();
             break;
         }
