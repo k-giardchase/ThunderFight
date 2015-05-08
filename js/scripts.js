@@ -286,7 +286,7 @@ $(function() {
                 if (posy > PLAYGROUND_HEIGHT) {
                     if ($('#player')[0].player.respawn()) {
                         gameOver = true;
-                        $('#playground').append('<div style="position: absolute; top: 50px; width: 700px; color: white; font-family: verdana, sans-serif;"><center><h1>Game Over</h1><br><a style="cursor: pointer;" id="restartbutton">Press ENTER to restart the game!</a></center></div>');
+                        $('#playground').append('<div style="position: absolute; top: 30px; width: 700px; color: white; font-family: Starjhol;"><center><h2>Game over</h2><br><a style="cursor: pointer;" id="restartbutton">Press ENTER to restart the game!</a></center></div>');
                         $(document).one('keypress', function(e) {
                             if (e.keyCode == 13) {
                                 restartgame();
