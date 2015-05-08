@@ -72,7 +72,7 @@ function Player(node) {
 
   //this.animations = animations;
   this.grace = false;
-  this.replay = 1;
+  this.replay = 3;
   this.shield = 3;
   this.respawnTime = -1;
 
