@@ -9,8 +9,7 @@
   width: 700px;
   height: 250px;
   background: #000;
-  /*margin-top : 300px;
-  margin-left: 40%;*/
+  box-shadow: 0px 0px 30px 20px #000;
 }
 
 #welcomeScreen {
@@ -47,4 +46,19 @@ body {
 
 video {
     display : none;
+}
+
+@font-face {
+  font-family: "Starjhol";
+  src: url('../Font/star_jedi/starjedi/Starjhol.ttf');
+}
+
+.center h1 {
+  text-align: center;
+  color: yellow;
+  font-family: "Starjhol";
+  margin-top: -80px;
+  margin-bottom: 50px;
+  font-size: 50px;
+  transform: perspective(300px) rotateX(25deg);
 }

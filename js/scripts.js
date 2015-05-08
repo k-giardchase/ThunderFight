@@ -298,7 +298,8 @@ $(function() {
                         gameOver = true;
                         end_time = new Date().getTime();
                         high_score = Math.ceil((end_time - start_time)/1000);
-                        $('#playground').append('<div style="position: absolute; top: 50px; width: 700px; color: white; font-family: verdana, sans-serif;"><center><h1>Game Over</h1><br><a id="score" style="font-style: italic;">You stayed alive for <div id="red" style="color: red; display: inline">' + high_score + '</div> seconds</a><br><a id="restartbutton">Press ENTER to restart the game!</a></center></div>');
+
+                        $('#playground').append('<div style="position: absolute; top: 30px; width: 700px; color: white; font-family: Starjhol;"><center><h2>Game over</h2><br><a id="score" style="font-style: italic;">You stayed alive for <div id="red" style="color: red; display: inline">' + high_score + '</div> seconds</a><br><a style="cursor: pointer;" id="restartbutton">Press ENTER to restart the game!</a></center></div>');
                         $(document).one('keypress', function(e) {
                             if (e.keyCode == 13) {
                                 restartgame();
