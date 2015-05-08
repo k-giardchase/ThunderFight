@@ -62,3 +62,8 @@ video {
   font-size: 50px;
   transform: perspective(300px) rotateX(25deg);
 }
+
+#score1 {
+    background: pink;
+    margin-top: 300px;
+}

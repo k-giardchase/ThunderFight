@@ -27,10 +27,21 @@ var missileCounter = 0;
 var start_time = 0;
 var end_time = 0;
 var high_score = 0;
+// var playerName = "Kyle";
+var playerScore;
+// var gameResult = {};
+// var highscoreList = [];
 
 
 function restartgame() {
     window.location.reload();
+    // $("#playground").load(document.location.href + "#playground");
+    // window.location.href = window.location.href;
+    // $("#playground").remove();
+    // $("#playground").playground({ height: PLAYGROUND_HEIGHT, width: PLAYGROUND_WIDTH, keyTracker: true });
+    // var page = $("#score1");
+    // $("#playground").load(page);
+    // window.location.href.load(page);
 };
 
 function explodePlayer(playerNode) {
@@ -39,9 +50,20 @@ function explodePlayer(playerNode) {
     playerHit = true;
 };
 
-function score(start_time, end_time) {
-    high_score = start_time - end_time;
-}
+
+//Score object
+function toHighscoreList(high_score, playerName) {
+    playerScore = high_score;
+    console.log(high_score);
+    gameResult = {player: playerName, score: playerScore};
+    console.log(gameResult);
+    highscoreList.push(gameResult);
+    console.log(gameResult);
+    highscoreList.sort(function(a,b) {return (b.score - a.score) });
+    console.log(highscoreList);
+
+    $('.score12').text(highscoreList[0].player + " - score: "+ highscoreList[0].score);
+};
 
 
 // PLAYER OBJECT
@@ -50,7 +72,7 @@ function Player(node) {
 
   //this.animations = animations;
   this.grace = false;
-  this.replay = 3;
+  this.replay = 1;
   this.shield = 3;
   this.respawnTime = -1;
 
@@ -298,7 +320,7 @@ $(function() {
                         gameOver = true;
                         end_time = new Date().getTime();
                         high_score = Math.ceil((end_time - start_time)/1000);
-
+                        // toHighscoreList(high_score, playerName);
                         $('#playground').append('<div style="position: absolute; top: 30px; width: 700px; color: white; font-family: Starjhol;"><center><h2>Game over</h2><br><a id="score" style="font-style: italic;">You stayed alive for <div id="red" style="color: red; display: inline">' + high_score + '</div> seconds</a><br><a style="cursor: pointer;" id="restartbutton">Press ENTER to restart the game!</a></center></div>');
                         $(document).one('keypress', function(e) {
                             if (e.keyCode == 13) {
@@ -554,9 +576,5 @@ $(function() {
         }
     }
   });
-
-
-
-
 
 });  // CLOSING jQuery
