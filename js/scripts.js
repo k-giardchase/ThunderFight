@@ -3,7 +3,7 @@ var PLAYGROUND_WIDTH   = 700;
 var PLAYGROUND_HEIGHT  = 250;
 var REFRESH_RATE       = 15;
 var GRACE              = 2000;
-var MISSILE_SPEED      = 10;
+var MISSILE_SPEED      = 15;
 
 // BG CONSTANTS
 var smallStarSpeed     = 1; //pixels per frame
@@ -23,6 +23,11 @@ var timeOfRespawn = 0;
 var gameOver = false;
 var missileCounter = 0;
 
+//HIGH SCORES
+var start_time = 0;
+var end_time = 0;
+var high_score = 0;
+
 
 function restartgame() {
     window.location.reload();
@@ -33,6 +38,10 @@ function explodePlayer(playerNode) {
     playerNode.addSprite('explosion', { animation: playerAnimation['explode'], width: 100, height: 26 });
     playerHit = true;
 };
+
+function score(start_time, end_time) {
+    high_score = start_time - end_time;
+}
 
 
 // PLAYER OBJECT
@@ -236,6 +245,7 @@ $(function() {
       if (e.keyCode == 13) {
           $.playground().startGame(function() {
             $("#welcomeScreen").fadeTo(1000, 0, function() { $(this).remove(); });
+            start_time = new Date().getTime();
           });
       }
   });
@@ -286,7 +296,9 @@ $(function() {
                 if (posy > PLAYGROUND_HEIGHT) {
                     if ($('#player')[0].player.respawn()) {
                         gameOver = true;
-                        $('#playground').append('<div style="position: absolute; top: 50px; width: 700px; color: white; font-family: verdana, sans-serif;"><center><h1>Game Over</h1><br><a style="cursor: pointer;" id="restartbutton">Press ENTER to restart the game!</a></center></div>');
+                        end_time = new Date().getTime();
+                        high_score = Math.ceil((end_time - start_time)/1000);
+                        $('#playground').append('<div style="position: absolute; top: 50px; width: 700px; color: white; font-family: verdana, sans-serif;"><center><h1>Game Over</h1><br><a id="score" style="font-style: italic;">You stayed alive for <div id="red" style="color: red; display: inline">' + high_score + '</div> seconds</a><br><a id="restartbutton">Press ENTER to restart the game!</a></center></div>');
                         $(document).one('keypress', function(e) {
                             if (e.keyCode == 13) {
                                 restartgame();
@@ -541,5 +553,9 @@ $(function() {
         }
     }
   });
+
+
+
+
 
 });  // CLOSING jQuery

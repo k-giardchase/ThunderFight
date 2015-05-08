@@ -1,5 +1,5 @@
 .center {
-    margin: 200px auto;
+    margin: 0px auto;
     position: relative;
     width: 700px;
     height: 250px;
@@ -32,21 +32,11 @@
   color: #fff;
 }
 
-#loadingBar {
-  position: relative;
-  left: 100px;
-  height: 15px;
-  width: 0px;
-  background: pink;
-}
-
 #startbutton {
   top: 175px;
   text-align: center;
   margin: 200px;
 }
-
-
 
 body {
     background: url('../img/space.jpg') repeat;
